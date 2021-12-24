@@ -1,0 +1,196 @@
+﻿using keesonGarmentApi.Filters;
+using keesonGarmentApi.Models;
+using keesonGarmentApi.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace keesonGarmentApi.Controllers
+{
+    //[Authorize]
+    [ApiController]
+    [Route("api/log")]
+    public class GarmentAssignedLogController : Controller
+    {
+        private readonly GarmentAssignedLogService _garmentAssignedLogService;
+
+        public GarmentAssignedLogController(GarmentAssignedLogService garmentAssignedLogService)
+        {
+            _garmentAssignedLogService = garmentAssignedLogService;
+        }
+
+        /// <summary>
+        /// 获取领取记录
+        /// </summary>
+        /// <param name="state">状态(0:未提交 1:提交未领取 2:已领取)</param>
+        /// <param name="isDelete">是否离职</param>
+        /// <param name="pageIndex">页码</param>
+        /// <param name="pageSize">页码尺寸</param>
+        /// <param name="code">员工号</param>
+        /// <param name="name">员工姓名</param>
+        /// <param name="department">部门</param>
+        /// <param name="postion">工段</param>
+        /// <param name="date">日期</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Permission("Get-Log")]
+        public async Task<IActionResult> GetGarmentAssignedLog(int state, int pageIndex, int pageSize, string? code, string? name, string? department, string? postion, DateTime? date, bool isDelete = false)
+        {
+            var ret = await _garmentAssignedLogService.GetGarmentAssignedLogAsync(state, isDelete, pageIndex, pageSize, code, name,department, postion, date);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 申领工服->全部员工
+        /// </summary>
+        /// <param name="pageIndex">页码</param>
+        /// <param name="pageSize">页面尺寸</param>
+        /// <param name="code">员工号</param>
+        /// <param name="name">姓名</param>
+        /// <param name="department">部门</param>
+        /// <param name="postion">工段</param>
+        /// <returns></returns>
+        [HttpGet("allEmployee")]
+        public async Task<IActionResult> GetAllEmployeeLog(int pageIndex, int pageSize, string? code, string? name, string? department, string? postion)
+        {
+            var ret = await _garmentAssignedLogService.GetAllEmployeeLogAsync(pageIndex,pageSize,code,name,department,postion);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 申请工服->离职员工
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="code"></param>
+        /// <param name="name"></param>
+        /// <param name="department"></param>
+        /// <param name="postion"></param>
+        /// <returns></returns>
+        [HttpGet("quitEmployee")]
+        public async Task<IActionResult> GetQuitEmployeeLog(int pageIndex, int pageSize, string? code, string? name, string? department, string? postion)
+        {
+            var ret = await _garmentAssignedLogService.GetQuitEmployeeLogAsync(pageIndex, pageSize, code, name, department, postion);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 后台管理->台账报表
+        /// </summary>
+        /// <param name="pageIndex">页码</param>
+        /// <param name="pageSize">页面尺寸</param>
+        /// <param name="code">员工号</param>
+        /// <param name="name">姓名</param>
+        /// <param name="department">部门</param>
+        /// <param name="date">入职时间</param>
+        /// <returns></returns>
+        [HttpGet("singleLogs")]
+        public async Task<IActionResult> GetAllEmployeeLog(int pageIndex, int pageSize, string? code, string? name, string? department, DateTime? date)
+        {
+            var ret = await _garmentAssignedLogService.GetGarmentAssignedLogSingleAsync(pageIndex, pageSize, code, name, department, date);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 自动审核，批量添加记录
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Permission("Add-LogAll")]
+        public async Task<IActionResult> AddGarmentAssignedLog()
+        {
+            var ret = await _garmentAssignedLogService.AddGarmentAssignedLogAsync();
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 单独添加记录
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost("single")]
+        [Permission("Add-LogSingle")]
+        public async Task<IActionResult> AddSingleGarmentAssignedLog(AddSingleGarmentAssignedLogModel model)
+        {
+            var ret = await _garmentAssignedLogService.AddSingleGarmentAssignedLogAsync(model);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 修改记录(维护)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPut("maintain")]
+        [Permission("Update-LogInfo")]
+        public async Task<IActionResult> UpdateGarmentAssignedLog(UpdateGarmentAssignedLogModel model)
+        {
+            var ret = await _garmentAssignedLogService.UpdateGarmentAssignedLogAsync(model);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 更新记录状态
+        /// </summary>
+        /// <param name="model">state为更新后的状态</param>
+        /// <returns></returns>
+        [HttpPut("state")]
+        [Permission("Update-LogState")]
+        public async Task<IActionResult> UpdateGarmentAssignedLogState(UpdateGarmentAssignedLogStateModel model)
+        {
+            var ret = await _garmentAssignedLogService.UpdateGarmentAssignedLogStateAsync(model);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 快速提交、领取
+        /// </summary>
+        /// <param name="list">员工号列表</param>
+        /// <param name="state">修改后转态(1:提交 2:领取)</param>
+        /// <param name="date">领取日期</param>
+        /// <returns></returns>
+        [HttpPut("fastAssigned")]
+        [Permission("Update-LogFastAssigned")]
+        public async Task<IActionResult> UpdateFastAssigned(UpdateFastCommitOrAssignedLogModel model)
+        {
+            var ret = await _garmentAssignedLogService.UpdateFastCommitOrAssignedAsync(model);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 快速维护
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPut("fastMaintain")]
+        public async Task<IActionResult> UpdateFastMaintainLogState(UpdateFastMaintainLogModel model)
+        {
+            var ret = await _garmentAssignedLogService.UpdateFastMaintainAsync(model);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 退还工衣(新增退还记录)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPut("refund")]
+        [Permission("Update-LogRefund")]
+        public async Task<IActionResult> RefundGarmentAssignedLog(RefundGarmentAssignedLogModel model)
+        {
+            var ret = await _garmentAssignedLogService.RefundGarmentAssignedLogAsync(model);
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 申请汇总
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("summary")]
+        [Permission("Get-LogSummary")]
+        public async Task<IActionResult> GetCommitGarmentAssignedLogSummary()
+        {
+            var ret = await _garmentAssignedLogService.GetGarmentCommitLogSummaryAsync();
+            return Ok(ret);
+        }
+    }
+}

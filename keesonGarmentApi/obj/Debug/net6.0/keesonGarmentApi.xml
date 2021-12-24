@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>keesonGarmentApi</name>
+    </assembly>
+    <members>
+        <member name="M:keesonGarmentApi.Common.HttpContextHelp.AddHttpContextCurrent(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Can Use HttpContext.Current
+            </summary>
+            <param name="services"></param>
+        </member>
+        <member name="M:keesonGarmentApi.Common.HttpContextHelp.UseHttpContextCurrent(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Can Use HttpContext.Current
+            </summary>
+            <param name="app"></param>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.GetGarmentAssignedLog(System.Int32,System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.Nullable{System.DateTime},System.Boolean)">
+            <summary>
+            获取领取记录
+            </summary>
+            <param name="state">状态(0:未提交 1:提交未领取 2:已领取)</param>
+            <param name="isDelete">是否离职</param>
+            <param name="pageIndex">页码</param>
+            <param name="pageSize">页码尺寸</param>
+            <param name="code">员工号</param>
+            <param name="name">员工姓名</param>
+            <param name="department">部门</param>
+            <param name="postion">工段</param>
+            <param name="date">日期</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.GetAllEmployeeLog(System.Int32,System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            申领工服->全部员工
+            </summary>
+            <param name="pageIndex">页码</param>
+            <param name="pageSize">页面尺寸</param>
+            <param name="code">员工号</param>
+            <param name="name">姓名</param>
+            <param name="department">部门</param>
+            <param name="postion">工段</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.GetQuitEmployeeLog(System.Int32,System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            申请工服->离职员工
+            </summary>
+            <param name="pageIndex"></param>
+            <param name="pageSize"></param>
+            <param name="code"></param>
+            <param name="name"></param>
+            <param name="department"></param>
+            <param name="postion"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.GetAllEmployeeLog(System.Int32,System.Int32,System.String,System.String,System.String,System.Nullable{System.DateTime})">
+            <summary>
+            后台管理->台账报表
+            </summary>
+            <param name="pageIndex">页码</param>
+            <param name="pageSize">页面尺寸</param>
+            <param name="code">员工号</param>
+            <param name="name">姓名</param>
+            <param name="department">部门</param>
+            <param name="date">入职时间</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.AddGarmentAssignedLog">
+            <summary>
+            自动审核，批量添加记录
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.AddSingleGarmentAssignedLog(keesonGarmentApi.Models.AddSingleGarmentAssignedLogModel)">
+            <summary>
+            单独添加记录
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.UpdateGarmentAssignedLog(keesonGarmentApi.Models.UpdateGarmentAssignedLogModel)">
+            <summary>
+            修改记录(维护)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.UpdateGarmentAssignedLogState(keesonGarmentApi.Models.UpdateGarmentAssignedLogStateModel)">
+            <summary>
+            更新记录状态
+            </summary>
+            <param name="model">state为更新后的状态</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.UpdateFastAssigned(keesonGarmentApi.Models.UpdateFastCommitOrAssignedLogModel)">
+            <summary>
+            快速提交、领取
+            </summary>
+            <param name="list">员工号列表</param>
+            <param name="state">修改后转态(1:提交 2:领取)</param>
+            <param name="date">领取日期</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.UpdateFastMaintainLogState(keesonGarmentApi.Models.UpdateFastMaintainLogModel)">
+            <summary>
+            快速维护
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.RefundGarmentAssignedLog(keesonGarmentApi.Models.RefundGarmentAssignedLogModel)">
+            <summary>
+            退还工衣(新增退还记录)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentAssignedLogController.GetCommitGarmentAssignedLogSummary">
+            <summary>
+            申请汇总
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentController.GetGarmentList(System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            获取工衣列表
+            </summary>
+            <param name="pageIndex">页码</param>
+            <param name="pageSize">页面尺寸</param>
+            <param name="code">工服编号</param>
+            <param name="name">工服名称</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentController.AddGarment(keesonGarmentApi.Models.AddGarmentModel)">
+            <summary>
+            添加工衣(colors以顿号隔开)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentController.UpdateGarment(keesonGarmentApi.Models.UpdateGarmentModel)">
+            <summary>
+            修改工衣(colors以顿号隔开)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentController.DeleteGarment(System.String)">
+            <summary>
+            删除工衣
+            </summary>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentIssuingController.GetGarmentIssuing">
+            <summary>
+            获取正在发放工服信息(返回距离截止日期最近的记录)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentIssuingController.GetFIlesName">
+            <summary>
+            获取文件名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentIssuingController.UploadFile(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            添加文件
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentIssuingController.AddGarmentIssuing(keesonGarmentApi.Models.AddGarmentIssuingModel)">
+            <summary>
+            提交发放工服、截止时间
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentIssuingRuleController.GetGarmentIssuingRule">
+            <summary>
+            获取工服发放标准
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GarmentIssuingRuleController.AddGarmentIssuingRule(keesonGarmentApi.Models.AddGarmentIssuingRuleModel)">
+            <summary>
+            添加工服发放标准
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GEmployeeController.GetGEmployee(System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            获取员工信息(包含员工工衣尺码)
+            </summary>
+            <param name="pageIndex">页码</param>
+            <param name="pageSize">页面尺寸</param>
+            <param name="code">员工号</param>
+            <param name="name">员工姓名</param>
+            <param name="department">部门</param>
+            <param name="postion">工段</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GEmployeeController.AddGEmployee(keesonGarmentApi.Models.AddGEmployeeModel)">
+            <summary>
+            添加员工(工衣尺码可为空)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GEmployeeController.AddCEmployeeList(System.Collections.Generic.List{keesonGarmentApi.Models.AddGEmployeeModel})">
+            <summary>
+            批量添加员工
+            </summary>
+            <param name="models"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GEmployeeController.UpdateGEmployee(keesonGarmentApi.Models.UpdateGEmployeeModel)">
+            <summary>
+            修改员工信息
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GEmployeeController.DeleteGEmployee(System.String)">
+            <summary>
+            删除员工(仅将员工IsDelete字段标记为True)
+            </summary>
+            <param name="code">员工号</param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.GEmployeeController.DeleteGEmployeeList(System.Collections.Generic.List{System.String})">
+            <summary>
+            快速删除
+            </summary>
+            <param name="list"></param>
+            <returns></returns>
+        </member>
+        <member name="M:keesonGarmentApi.Controllers.SelectorController.GetGarmentSelector">
+            <summary>
+            获取工衣种类(id,name)
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
