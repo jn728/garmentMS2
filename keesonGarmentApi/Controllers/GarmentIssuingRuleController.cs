@@ -24,6 +24,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Permission("Get-Rule")]
+        //[Permission("Garment-hig")]
         public async Task<IActionResult> GetGarmentIssuingRule()
         {
             var ret = await _garmentIssuingRuleService.GetGarmentIssuingRulesAsync();
@@ -37,6 +38,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [Permission("Get-Rule")]
+        //[Permission("Garment-hig")]
         public async Task<IActionResult> AddGarmentIssuingRule(AddGarmentIssuingRuleModel model)
         {
             var ret = await _garmentIssuingRuleService.AddGarmentIssuingRuleAsync(model);

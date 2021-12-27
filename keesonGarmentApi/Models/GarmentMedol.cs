@@ -24,10 +24,15 @@
         public bool IsClothes { get; set; }
 
         //public List<string>? Colors { get; set; }
-        public string? Colors { get; set; }
+        //public string? Colors { get; set; }
+
+        public List<Dictionary<string,string>> Colors { get; set; }
 
         public DateTime CreateTime => DateTime.Now;
     }
+
+    //public class ColorModel
+
     public class UpdateGarmentModel
     {
         public string Code { get; set; }
@@ -39,6 +44,8 @@
         public decimal Price { get; set; }
 
         //public List<string>? Colors { get; set; }
-        public string? Colors { get; set; }
+        //public string? Colors { get; set; }
+        public List<Dictionary<string, string>> Colors { get; set; }
+
     }
 }

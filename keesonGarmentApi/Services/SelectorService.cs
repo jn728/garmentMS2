@@ -27,5 +27,20 @@ namespace keesonGarmentApi.Services
             ret.Message = "数据获取成功";
             return ret;
         }
+
+        public async Task<ResultsModel<SelectorDepartmentModel>> GetDepartmentSelectorAsync()
+        {
+            var ret = new ResultsModel<SelectorDepartmentModel>();
+
+            var qeury = await GarmentContext.GEmployees.GroupBy(x => x.Department).Select(g => new SelectorDepartmentModel
+            {
+                Value = g.Key
+            }).ToListAsync();
+
+            ret.Data = qeury;
+            ret.Code = HttpStatus.Success;
+            ret.Message = "数据获取成功";
+            return ret;
+        }
     }
 }

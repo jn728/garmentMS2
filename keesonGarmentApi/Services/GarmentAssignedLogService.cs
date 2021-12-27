@@ -2,6 +2,7 @@
 using keesonGarmentApi.Common;
 using keesonGarmentApi.Entities;
 using keesonGarmentApi.Models;
+using Magicodes.ExporterAndImporter.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -71,7 +72,7 @@ namespace keesonGarmentApi.Services
             }
             if (date != null)
             {
-                query = query.Where(x => x.Induction.Date == date);
+                query = query.Where(x => x.Induction.Date == ((DateTime)date).Date);
             }
 
             var count = query.Count();
@@ -92,7 +93,8 @@ namespace keesonGarmentApi.Services
                                OperationTime = l.OperationTime,
                                GarmentName = g.Name,
                                GarmentCode = g.Code,
-                               Fare = state <= 1 ? 0 : GetRefundFare(l,GarmentContext.GarmentsAssignedLogs.Where(x => x.Type == false && x.UserId == l.UserId && x.GarmentId == l.GarmentId && x.State == 2 && x.AssignedTime == l.AssignedTime).Sum(x => x.Number),g.Price),
+                               Color = l.Color,
+                               Fare = state <= 1 ? 0 : GetRefundFare(l, GarmentContext.GarmentsAssignedLogs.Where(x => x.Type == false && x.UserId == l.UserId && x.GarmentId == l.GarmentId && x.State == 2 && x.AssignedTime == l.AssignedTime).Sum(x => x.Number), g.Price),
                                Remark = l.Remark
                            };
                 item.Logs = logs.ToList();
@@ -153,23 +155,23 @@ namespace keesonGarmentApi.Services
             var ret = new PageViewModel<GarmentAssignedLogSingleListModel>();
 
             var roles = GetRoleNames();
-            string dep = "";
-            if (roles.Contains("部门文员"))
-            {
-                dep = (from ge in GarmentContext.GEmployees
-                       where ge.Code == UserId
-                       select ge.Department).First();
-            }
-            else if (roles.Contains("人事文员") || roles.Contains("行政文员"))
-            {
-                dep = "ALL";
-            }
+            string dep = GetRoleSelectDeparment();
+            //if (roles.Contains("部门文员"))
+            //{
+            //    dep = (from ge in GarmentContext.GEmployees
+            //           where ge.Code == UserId
+            //           select ge.Department).First();
+            //}
+            //else if (roles.Contains("人事文员") || roles.Contains("行政文员"))
+            //{
+            //    dep = "ALL";
+            //}
 
             var query = from log in GarmentContext.GarmentsAssignedLogs
                         join ge in GarmentContext.GEmployees on log.UserId equals ge.Code
                         join gs in GarmentContext.GarmentsSizes on log.UserId equals gs.UserCode
                         join g in GarmentContext.Garments on log.GarmentId equals g.Code
-                        where ge.IsDeleted == false && log.State == 2
+                        where ge.IsDeleted == false && log.State == 2 && (ge.Department == dep || dep == "ALL")
                         select new GarmentAssignedLogSingleListModel
                         {
                             UserId = log.UserId,
@@ -220,7 +222,7 @@ namespace keesonGarmentApi.Services
             return ret;
         }
 
-        public async Task<PageViewModel<GarmentAllEmployeeLogListModel>> GetAllEmployeeLogAsync(int pageIndex, int pageSize, string code, string name, string department, string postion)
+        public async Task<PageViewModel<GarmentAllEmployeeLogListModel>> GetAllEmployeeLogAsync(int pageIndex, int pageSize, string code, string name, string department, string postion, DateTime? date)
         {
             pageIndex = pageIndex == 0 ? 1 : pageIndex;
             pageSize = pageSize == 0 ? 20 : pageSize;
@@ -254,9 +256,23 @@ namespace keesonGarmentApi.Services
                             ClothesSize = gs.ClothesSize,
                             ShoesSize = gs.ShoesSize,
                             IsPass = true,
-                            Number = null,
-                            Size = null
+                            Logs = new List<SingleLog>()
+                            //Number = null,
+                            //Size = null
                         };
+            //select new GarmentAllEmployeeLogListModel
+            //{
+            //    UserId = ge.Code,
+            //    UserName = ge.Name,
+            //    Department = ge.Department,
+            //    Postion = ge.Postion,
+            //    Induction = ge.Induction,
+            //    ClothesSize = gs.ClothesSize,
+            //    ShoesSize = gs.ShoesSize,
+            //    IsPass = true,
+            //    Number = null,
+            //    Size = null
+            //};
 
             if (!string.IsNullOrEmpty(code))
             {
@@ -273,6 +289,10 @@ namespace keesonGarmentApi.Services
             if (!string.IsNullOrEmpty(postion))
             {
                 query = query.Where(x => x.Postion == postion);
+            }
+            if (date != null)
+            {
+                query = query.Where(x => x.Induction.Date == ((DateTime)date).Date);
             }
 
             var count = await query.CountAsync();
@@ -291,18 +311,41 @@ namespace keesonGarmentApi.Services
                 }
             }
 
-            for (int i = 0;i < list.Count; i++)
+            var gTemp = (from issuingCode in GarmentContext.GarmentsIssuings
+                         where issuingCode.EndTime > DateTime.Now
+                         join garment in GarmentContext.Garments on issuingCode.GarmentCode equals garment.Code
+                         select new
+                         {
+                             GarmentCode = garment.Code,
+                             GarmentName = garment.Name
+                         }).FirstOrDefault();
+
+            for (int i = 0; i < list.Count; i++)
             {
                 var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.State <= 1 && x.UserId == list[i].UserId);
+
+                var singleLog = new SingleLog()
+                {
+                    Fare = 0,
+                    AssigedOrRefundTime = null,
+                    Type = true,
+                    GarmentName = gTemp == null ? "" : gTemp.GarmentName,
+                    GarmentCode = gTemp == null ? "" : gTemp.GarmentCode,
+                    Color = "none",
+                    Remark = "",
+                    OperationTime = DateTime.Now
+                };
                 if (log == null)
                 {
-                    continue;
+                    singleLog.Number = "";
+                    singleLog.Size = "";
                 }
                 else
                 {
-                    list[i].Number = log.Number == 0 ? null : "" + log.Number;
-                    list[i].Size = log.Size;
+                    singleLog.Number = log.Number == 0 ? null : "" + log.Number;
+                    singleLog.Size = log.Size;
                 }
+                list[i].Logs.Add(singleLog);
             }
 
             ret.Data = Mapper.Map<List<GarmentAllEmployeeLogListModel>>(list);
@@ -387,9 +430,10 @@ namespace keesonGarmentApi.Services
             return ret;
         }
 
-        public async Task<ResultsModel<GarmentCommitLogSummaryListModel>> GetGarmentCommitLogSummaryAsync()
+        //public async Task<ResultsModel<GarmentCommitLogSummaryListModel>> GetGarmentCommitLogSummaryAsync()
+        public async Task<ResultModel<GarmentSummaryConvertModel>> GetGarmentCommitLogSummaryAsync()
         {
-            var ret = new ResultsModel<GarmentCommitLogSummaryListModel>();
+            var ret = new ResultModel<GarmentSummaryConvertModel>();
 
             var roles = GetRoleNames();
             string dep = "";
@@ -430,7 +474,8 @@ namespace keesonGarmentApi.Services
 
             var departmentList = list.Select(x => x.Department).ToList();
             var departmentSet = new HashSet<string>(departmentList);
-            ret.Data = new List<GarmentCommitLogSummaryListModel>();
+            var tempDate = new List<GarmentCommitLogSummaryListModel>();
+            var typeList = new List<string>();
             foreach (var department in departmentSet)
             {
                 var singleSummaryList = from l in list
@@ -442,12 +487,68 @@ namespace keesonGarmentApi.Services
                                             Color = l.Color,
                                             Number = l.Number
                                         };
-                ret.Data.Add(new GarmentCommitLogSummaryListModel
+                typeList.AddRange(singleSummaryList.Select(x => x.GarmentName + (x.Color == null || x.Color == "none" ? "" : "(" + x.Color + ")") + x.Size).ToList());
+                tempDate.Add(new GarmentCommitLogSummaryListModel
                 {
                     Department = department,
                     List = singleSummaryList.ToList()
                 });
             }
+
+            //待完善，代码混乱
+            var retDate2 = new GarmentSummaryConvertModel();
+            retDate2.DataList = new List<Dictionary<string, string>>();
+            retDate2.TitleList = new List<Dictionary<string, string>>();
+
+            var propSet = new HashSet<string>(typeList);
+
+            var dic = new Dictionary<string, string>();
+            dic.Add("label", "部门");
+            dic.Add("prop", "dep");
+            retDate2.TitleList.Add(dic);
+
+            var indexDic = new Dictionary<string, string>();
+            int col = 1;
+            foreach (var prop in propSet)
+            {
+                var dicT = new Dictionary<string, string>();
+                dicT.Add("label", prop);
+                dicT.Add("prop", "prop" + col);
+                retDate2.TitleList.Add(dicT);
+                indexDic.Add(prop, "prop" + col);
+                col++;
+            }
+            foreach (var item in tempDate)
+            {
+                var dicT = new Dictionary<string, string>();
+                dicT.Add("dep", item.Department);
+                foreach (var key in item.List)
+                {
+                    string type = key.GarmentName + (key.Color == null || key.Color == "none" ? "" : "(" + key.Color + ")") + key.Size;
+                    string index = indexDic.GetValueOrDefault(type);
+                    dicT.Add(index, "" + key.Number);
+                }
+                retDate2.DataList.Add(dicT);
+            }
+            ret.Data = retDate2;
+            //ret.Data = new List<GarmentCommitLogSummaryListModel>();
+            //foreach (var department in departmentSet)
+            //{
+            //    var singleSummaryList = from l in list
+            //                            where l.Department == department
+            //                            select new SingleSummary
+            //                            {
+            //                                GarmentName = l.GarmentName,
+            //                                Size = l.Size,
+            //                                Color = l.Color,
+            //                                Number = l.Number
+            //                            };
+            //    ret.Data.Add(new GarmentCommitLogSummaryListModel
+            //    {
+            //        Department = department,
+            //        List = singleSummaryList.ToList()
+            //    });
+            //}
 
             ret.Code = HttpStatus.Success;
             ret.Message = "数据获取成功";
@@ -555,7 +656,7 @@ namespace keesonGarmentApi.Services
 
         private async Task<bool> AddLogAsync(AddGarmentAssignedLogBeforeCommitModel item)
         {
-            
+
             //var rule = (from gir in GarmentContext.GarmentsIssuingRules
             //            where gir.DepartmentId.Equals(item.Department) && gir.PositionId.Equals(item.Postion) && gir.GarmentId.Equals(item.GarmentId)
             //            select new
@@ -614,23 +715,23 @@ namespace keesonGarmentApi.Services
         private async Task<int> GetIssuingRuleNumber(string gid, string uid)
         {
             var temp = (from ge in GarmentContext.GEmployees
-                       where ge.Code == uid
-                       select new
-                       {
-                           dep = ge.Department,
-                           pos = ge.Postion,
-                           ind = ge.Induction
-                       }).FirstOrDefault();
+                        where ge.Code == uid
+                        select new
+                        {
+                            dep = ge.Department,
+                            pos = ge.Postion,
+                            ind = ge.Induction
+                        }).FirstOrDefault();
             if (temp == null)
             {
                 return -1;
             }
-            //待添加
+            //???
 
             //获取该工服部门工段发放标准
             var rule = (from gir in GarmentContext.GarmentsIssuingRules
-                        where gir.DepartmentId.Equals(temp.dep) && gir.PositionId.Equals(temp.pos) && gir.GarmentId.Equals(gid)
-                        //where gir.DepartmentId.Equals(temp.dep) && gir.PositionId.Equals(CoventPosition(temp.pos)) && gir.GarmentId.Equals(gid) //工段转换
+                            //where gir.DepartmentId.Equals(temp.dep) && gir.PositionId.Equals(temp.pos) && gir.GarmentId.Equals(gid)
+                        where gir.DepartmentId.Equals(temp.dep) && gir.PositionId.Equals(CoventPosition(temp.pos)) && gir.GarmentId.Equals(gid)
                         select new
                         {
                             year_new = gir.NewEmpAssignedYear,
@@ -670,43 +771,89 @@ namespace keesonGarmentApi.Services
             }
         }
 
+        //快速维护
+        //行政文员：数量可以超出标准
         public async Task<ResultsModel<string>> UpdateFastMaintainAsync(UpdateFastMaintainLogModel model)
         {
             var ret = new ResultsModel<string>();
             ret.Data = new List<string>();
 
+            //去除不可维护人员id
+            if(GetRoleState() == 0)
+            {
+                model.List = (from l in model.List
+                              join g in GarmentContext.GEmployees on l equals g.Code
+                              where g.Department == GetRoleSelectDeparment()
+                              select l).ToList();
+            }
+
+
             var isClothes = await GarmentContext.Garments.Where(x => x.Code == model.GarmentCode).Select(x => x.IsClothes).FirstAsync();
             foreach (var item in model.List)
             {
+                //???
                 var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == item && x.State == 0);
                 if (log == null)
                 {
-                    ret.Data.Add(item);
-                    continue;
-                }
-                log.GarmentId = model.GarmentCode;
-                
-                if (model.Number > GetIssuingRuleNumber(model.GarmentCode, item).Result)
-                {
-                    ret.Data.Add(item);
-                    continue;
-                }
-                log.Number = model.Number;
+                    var isEx = await GarmentContext.GEmployees.AnyAsync(x => x.Code == item);
+                    if (!isEx)
+                    {
+                        ret.Data.Add(item);
+                        continue;
+                    }
+                    if (model.Number > GetIssuingRuleNumber(model.GarmentCode, item).Result && GetRoleState() != 2)
+                    {
+                        ret.Data.Add(item);
+                        continue;
+                    }
 
-                var size = (from gs in GarmentContext.GarmentsSizes
-                           where gs.UserCode == item
-                           select new
-                           {
-                               csize = gs.ClothesSize,
-                               ssize = gs.ShoesSize
-                           }).FirstOrDefault();
-                if (size == null)
-                {
-                    ret.Data.Add(item);
-                    continue;
+                    var gs = await GarmentContext.GarmentsSizes.FirstOrDefaultAsync(x => x.UserCode == item);
+                    var logTemp = new GarmentAssignedLog()
+                    {
+                        GarmentId = model.GarmentCode,
+                        UserId = item,
+                        Size = gs == null ? null : (isClothes == true ? gs.ClothesSize : gs.ShoesSize),
+                        Number = model.Number,
+                        State = 0,
+                        AssignedTime = null,
+                        RefundTime = null,
+                        Type = true,
+                        Color = model.Color,
+                        OperationTime = DateTime.Today,
+                        Remark = null,
+                        CreateTime = DateTime.Now,
+                        CreateUser = UserId,
+                        UpdateTime = null,
+                        UpdateUser = null
+                    };
+                    await GarmentContext.GarmentsAssignedLogs.AddAsync(logTemp);
                 }
-                log.Size = isClothes ? size.csize : size.ssize;
+                else
+                {
+                    log.GarmentId = model.GarmentCode;
 
+                    if (model.Number > GetIssuingRuleNumber(model.GarmentCode, item).Result && GetRoleState() != 2)
+                    {
+                        ret.Data.Add(item);
+                        continue;
+                    }
+                    log.Number = model.Number;
+
+                    var size = (from gs in GarmentContext.GarmentsSizes
+                                where gs.UserCode == item
+                                select new
+                                {
+                                    csize = gs.ClothesSize,
+                                    ssize = gs.ShoesSize
+                                }).FirstOrDefault();
+                    if (size == null)
+                    {
+                        ret.Data.Add(item);
+                        continue;
+                    }
+                    log.Size = isClothes ? size.csize : size.ssize;
+                    log.Color = model.Color;
+                }
                 await GarmentContext.SaveChangesAsync();
             }
 
@@ -744,6 +891,18 @@ namespace keesonGarmentApi.Services
                 state = 1;
             }
 
+            //判断是否可以维护
+            if(state == 0)
+            {
+                var isExT = await GarmentContext.GEmployees.AnyAsync(x => x.Code == model.UserId && x.Department == GetRoleSelectDeparment());
+                if (!isExT)
+                {
+                    ret.Code = HttpStatus.BadRequest;
+                    ret.Message = "不可维护其他部门人员";
+                    return ret;
+                }
+            }
+
             //var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.GarmentId == model.GarmentId && x.State <= state);
             var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.State <= state);
 
@@ -764,11 +923,11 @@ namespace keesonGarmentApi.Services
             log.GarmentId = model.GarmentId;
             if (state == 0)
             {
-                if(model.Number > GetIssuingRuleNumber(model.GarmentId, model.UserId).Result)
+                if (model.Number > GetIssuingRuleNumber(model.GarmentId, model.UserId).Result)
                 {
                     ret.Code = HttpStatus.BadRequest;
                     ret.Message = "超过可申请数量";
-                    return ret;   
+                    return ret;
                 }
             }
             log.Number = model.Number;
@@ -789,8 +948,21 @@ namespace keesonGarmentApi.Services
         public async Task<ResultViewModel> UpdateGarmentAssignedLogStateAsync(UpdateGarmentAssignedLogStateModel model)
         {
             var ret = new ResultViewModel();
-            var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.GarmentId == model.GarmentId && x.State == model.State-1);
-        
+
+            //判断是否可以维护
+            if (GetRoleState() == 0)
+            {
+                var isExT = await GarmentContext.GEmployees.AnyAsync(x => x.Code == model.UserId && x.Department == GetRoleSelectDeparment());
+                if (!isExT)
+                {
+                    ret.Code = HttpStatus.BadRequest;
+                    ret.Message = "不可维护其他部门人员";
+                    return ret;
+                }
+            }
+
+            var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.GarmentId == model.GarmentId && x.State == model.State - 1);
+
             if (log == null)
             {
                 ret.Code = HttpStatus.BadRequest;
@@ -808,10 +980,8 @@ namespace keesonGarmentApi.Services
                 {
                     log.AssignedTime = model.Date;
                 }
-                else
-                {
-                    log.State = model.State;
-                }
+
+                log.State = model.State;
                 log.UpdateTime = DateTime.Now;
                 log.OperationTime = DateTime.Today;
                 log.UpdateUser = UserId;
@@ -828,10 +998,19 @@ namespace keesonGarmentApi.Services
             var ret = new ResultsModel<string>();
             var retList = new List<string>();
 
+            //去除不可维护人员id
+            if(GetRoleState() == 0)
+            {
+                model.List = (from l in model.List
+                              join g in GarmentContext.GEmployees on l equals g.Code
+                              where g.Department == GetRoleSelectDeparment()
+                              select l).ToList();
+            }
+
             foreach (var item in model.List)
             {
-                var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == item && x.State == model.State-1);
-                if (log == null)
+                var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == item && x.State == model.State - 1);
+                if (log == null || log.Number <= 0 || string.IsNullOrEmpty(log.Size))
                 {
                     retList.Add(item);
                     continue;
@@ -874,8 +1053,8 @@ namespace keesonGarmentApi.Services
             var log = await GarmentContext.GarmentsAssignedLogs.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.GarmentId == model.GarmentId && x.State == 2 && x.AssignedTime == model.AssignedTime.Date);
 
             int max = (from l in GarmentContext.GarmentsAssignedLogs
-                        where l.UserId == model.UserId && l.GarmentId == model.GarmentId && l.AssignedTime == model.AssignedTime && l.Type == false
-                        select l.Number).Sum();
+                       where l.UserId == model.UserId && l.GarmentId == model.GarmentId && l.AssignedTime == model.AssignedTime && l.Type == false
+                       select l.Number).Sum();
 
             if (log == null)
             {
@@ -889,7 +1068,7 @@ namespace keesonGarmentApi.Services
                 ret.Message = "退还数量不能小于1";
                 return ret;
             }
-            if(log.Number < model.Number + max)
+            if (log.Number < model.Number + max)
             {
                 ret.Code = HttpStatus.BadRequest;
                 ret.Message = "退还总数量不能大于领取数量";
@@ -918,6 +1097,21 @@ namespace keesonGarmentApi.Services
             ret.Code = HttpStatus.Success;
             ret.Message = "退还成功";
             return ret;
+        }
+
+        public async Task<ResultViewModel> ExportExcel()
+        {
+            var ret = new ResultViewModel();
+            //var result = await IExporter.Export<ExportTestData>("D:\\File\\Garment", new List<ExportTestData>()
+
+            var list = GetGarmentAssignedLogSingleAsync(0, 0, null, null, null, null).Result.Data;
+
+            var result = await new ExcelExporter().Export("D:\\File\\Garment\\台账报表.xlsx", list);
+
+            ret.Code = HttpStatus.Success;
+            ret.Message = "导出成功";
+            return ret;
+
         }
     }
 }

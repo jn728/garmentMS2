@@ -27,7 +27,7 @@ namespace keesonGarmentApi.Services
             if (user != null)
             {
                 //UserId = user.GetUserId();
-                UserId = "admin";
+                UserId = "SFD88888";
             }
         }
 
@@ -37,8 +37,8 @@ namespace keesonGarmentApi.Services
         {
             var list = new List<string>
             {
-                "IT运营部",
-                "人事文员"
+                "行政文员"
+                //"部门文员"
             };
             return list;
         }
@@ -59,7 +59,41 @@ namespace keesonGarmentApi.Services
                 return "员工";
             }
         }
-        
+
+        protected int GetRoleState()
+        {
+            var roles = GetRoleNames();
+            if (roles.Contains("部门文员"))
+            {
+                return 0;
+            }
+            else if (roles.Contains("人事文员"))
+            {
+                return 1;
+            }
+            else if (roles.Contains("行政文员"))
+            {
+                return 2;
+            }
+            return -1;
+        }
+
+        protected string GetRoleSelectDeparment()
+        {
+            var roles = GetRoleNames();
+            if (roles.Contains("部门文员"))
+            {
+                return (from ge in GarmentContext.GEmployees
+                       where ge.Code == UserId
+                       select ge.Department).First();
+            }
+            else if (roles.Contains("人事文员") || roles.Contains("行政文员"))
+            {
+                return "ALL";
+            }
+            return "null";
+        }
+
         //protected List<string> GetRoleNames() =>
         //    FreeSql.Ado.Query<string>(@"Select Postion from AspNetRoles
         //                             where Id in ( select RoleId from AspNetUserRoles where UserId = @uid )", new { uid = UserId });

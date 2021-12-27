@@ -49,8 +49,8 @@ public class GarmentService : BaseService
                 foreach (var color in clist)
                 {
                     var dic = new Dictionary<string, string>();
-                    dic.Add("value", color);
-                    dic.Add("label", color);
+                    dic.Add("code", color);
+                    dic.Add("name", color);
                     data[i].Colors.Add(dic);
                 }
             }
@@ -80,7 +80,15 @@ public class GarmentService : BaseService
         var garment = Mapper.Map<Garment>(model);
         garment.CreateUser = UserId;
         //garment.Colors = string.Join('|',model.Colors.ToArray());
-        garment.Colors = model.Colors.Replace('、','|');
+        //garment.Colors = model.Colors.Replace('、','|');
+
+        var colorList = new List<string>();
+        foreach(var item in model.Colors)
+        {
+            colorList.Add(item.GetValueOrDefault("value",null));
+        }
+        garment.Colors = string.Join('|', colorList.ToArray());
+
         await GarmentContext.Garments.AddAsync(garment);
         await GarmentContext.SaveChangesAsync();
 
@@ -105,7 +113,13 @@ public class GarmentService : BaseService
         garment.Price = model.Price;
         garment.Remark = model.Remark;
         //garment.Colors = string.Join('|', model.Colors.ToArray());
-        garment.Colors = model.Colors.Replace('、', '|');
+        //garment.Colors = model.Colors.Replace('、', '|');
+        var colorList = new List<string>();
+        foreach (var item in model.Colors)
+        {
+            colorList.Add(item.GetValueOrDefault("value", null));
+        }
+        garment.Colors = string.Join('|', colorList.ToArray());
         garment.UpdateTime = DateTime.Now;
         garment.UpdateUser = UserId;
 

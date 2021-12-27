@@ -33,6 +33,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Permission("Get-Log")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> GetGarmentAssignedLog(int state, int pageIndex, int pageSize, string? code, string? name, string? department, string? postion, DateTime? date, bool isDelete = false)
         {
             var ret = await _garmentAssignedLogService.GetGarmentAssignedLogAsync(state, isDelete, pageIndex, pageSize, code, name,department, postion, date);
@@ -50,14 +51,15 @@ namespace keesonGarmentApi.Controllers
         /// <param name="postion">工段</param>
         /// <returns></returns>
         [HttpGet("allEmployee")]
-        public async Task<IActionResult> GetAllEmployeeLog(int pageIndex, int pageSize, string? code, string? name, string? department, string? postion)
+        //[Permission("Garment-low")]
+        public async Task<IActionResult> GetAllEmployeeLog(int pageIndex, int pageSize, string? code, string? name, string? department, string? postion, DateTime? date)
         {
-            var ret = await _garmentAssignedLogService.GetAllEmployeeLogAsync(pageIndex,pageSize,code,name,department,postion);
+            var ret = await _garmentAssignedLogService.GetAllEmployeeLogAsync(pageIndex,pageSize,code,name,department,postion,date);
             return Ok(ret);
         }
 
         /// <summary>
-        /// 申请工服->离职员工
+        /// 申请工服->离职员工(暂不使用)
         /// </summary>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
@@ -84,6 +86,7 @@ namespace keesonGarmentApi.Controllers
         /// <param name="date">入职时间</param>
         /// <returns></returns>
         [HttpGet("singleLogs")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> GetAllEmployeeLog(int pageIndex, int pageSize, string? code, string? name, string? department, DateTime? date)
         {
             var ret = await _garmentAssignedLogService.GetGarmentAssignedLogSingleAsync(pageIndex, pageSize, code, name, department, date);
@@ -96,6 +99,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [Permission("Add-LogAll")]
+        //[Permission("Garment-hig")]
         public async Task<IActionResult> AddGarmentAssignedLog()
         {
             var ret = await _garmentAssignedLogService.AddGarmentAssignedLogAsync();
@@ -109,6 +113,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPost("single")]
         [Permission("Add-LogSingle")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> AddSingleGarmentAssignedLog(AddSingleGarmentAssignedLogModel model)
         {
             var ret = await _garmentAssignedLogService.AddSingleGarmentAssignedLogAsync(model);
@@ -122,6 +127,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPut("maintain")]
         [Permission("Update-LogInfo")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> UpdateGarmentAssignedLog(UpdateGarmentAssignedLogModel model)
         {
             var ret = await _garmentAssignedLogService.UpdateGarmentAssignedLogAsync(model);
@@ -135,6 +141,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPut("state")]
         [Permission("Update-LogState")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> UpdateGarmentAssignedLogState(UpdateGarmentAssignedLogStateModel model)
         {
             var ret = await _garmentAssignedLogService.UpdateGarmentAssignedLogStateAsync(model);
@@ -150,6 +157,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPut("fastAssigned")]
         [Permission("Update-LogFastAssigned")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> UpdateFastAssigned(UpdateFastCommitOrAssignedLogModel model)
         {
             var ret = await _garmentAssignedLogService.UpdateFastCommitOrAssignedAsync(model);
@@ -162,6 +170,7 @@ namespace keesonGarmentApi.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("fastMaintain")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> UpdateFastMaintainLogState(UpdateFastMaintainLogModel model)
         {
             var ret = await _garmentAssignedLogService.UpdateFastMaintainAsync(model);
@@ -175,6 +184,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPut("refund")]
         [Permission("Update-LogRefund")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> RefundGarmentAssignedLog(RefundGarmentAssignedLogModel model)
         {
             var ret = await _garmentAssignedLogService.RefundGarmentAssignedLogAsync(model);
@@ -187,9 +197,21 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpGet("summary")]
         [Permission("Get-LogSummary")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> GetCommitGarmentAssignedLogSummary()
         {
             var ret = await _garmentAssignedLogService.GetGarmentCommitLogSummaryAsync();
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 台账报表
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("export3")]
+        public async Task<IActionResult> Export3()
+        {
+            var ret = await _garmentAssignedLogService.ExportExcel();
             return Ok(ret);
         }
     }

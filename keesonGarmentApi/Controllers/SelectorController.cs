@@ -24,5 +24,16 @@ namespace keesonGarmentApi.Controllers
             var ret = await _selectorService.GetGarmentSelectorAsync();
             return Ok(ret);
         }
+
+        /// <summary>
+        /// 获取部门(name)
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("department")]
+        public async Task<IActionResult> GetDepartmentSelector()
+        {
+            var ret = await _selectorService.GetDepartmentSelectorAsync();
+            return Ok(ret);
+        }
     }
 }

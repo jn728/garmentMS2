@@ -16,11 +16,13 @@ public class GarmentAllEmployeeLogListModel
 
     public DateTime Induction { get; set; }
 
-    public string Number { get; set; }
+    //public string Number { get; set; }
 
-    public string Size { get; set; }
+    //public string Size { get; set; }
 
     public bool IsPass { get; set; }
+
+    public List<SingleLog> Logs { get; set; }
 }
 
 public class GarmentQuitEmployeeLogListModel
@@ -119,6 +121,13 @@ public class SingleLog
     public string Remark { get; set; }
 
     public DateTime OperationTime { get; set; }
+}
+
+public class GarmentSummaryConvertModel
+{
+    public List<Dictionary<string, string>> DataList { get; set; }
+
+    public List<Dictionary<string, string>> TitleList { get; set; }
 }
 
 public class GarmentCommitLogSummaryListModel
@@ -231,6 +240,8 @@ public class UpdateFastMaintainLogModel
     public string GarmentCode { get; set; }
 
     public int Number { get; set; }
+
+    public string? Color { get; set; }
 }
 
 public class RefundGarmentAssignedLogModel

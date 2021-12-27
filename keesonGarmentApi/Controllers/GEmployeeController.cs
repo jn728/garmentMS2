@@ -31,6 +31,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Permission("Get-Employee")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> GetGEmployee(int pageIndex, int pageSize, string? code, string? name, string? department, string? postion, bool isDelete = false)
         {
             var ret = await _gemployeeService.GetGEmployeeAsync(pageIndex, pageSize, code, name, department, postion, isDelete);
@@ -44,6 +45,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [Permission("Post-Employee")]
+        //[Permission("Garment-mid")]
         public async Task<IActionResult> AddGEmployee(AddGEmployeeModel model)
         {
             var ret = await _gemployeeService.AddGEmployeeAsync(model);
@@ -56,6 +58,7 @@ namespace keesonGarmentApi.Controllers
         /// <param name="models"></param>
         /// <returns></returns>
         [HttpPost("list")]
+        //[Permission("Garment-mid")]
         public async Task<IActionResult> AddCEmployeeList(List<AddGEmployeeModel> models)
         {
             var ret = await _gemployeeService.AddGEmployeeListAsync(models);
@@ -69,6 +72,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPut]
         [Permission("Update-Employee")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> UpdateGEmployee(UpdateGEmployeeModel model)
         {
             var ret = await _gemployeeService.UpdateGEmployeeAsync(model);
@@ -82,6 +86,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Permission("Delete-Employee")]
+        //[Permission("Garment-mid")]
         public async Task<IActionResult> DeleteGEmployee(string code)
         {
             var ret = await _gemployeeService.DeleteGEmployeeAsync(code);
@@ -95,6 +100,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpDelete("list")]
         [Permission("Delete-EmployeeList")]
+        //[Permission("Garment-mid")]
         public async Task<IActionResult> DeleteGEmployeeList(List<string> list)
         {
             var ret = await _gemployeeService.DeleteGEmployeeListAsync(list);

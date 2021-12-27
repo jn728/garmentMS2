@@ -28,6 +28,7 @@ public class GarmentController : Controller
     /// <returns></returns>
     [HttpGet]
     [Permission("Get-Garment")]
+    //[Permission("Garment-low")]
     public async Task<IActionResult> GetGarmentList(int pageIndex, int pageSize, string? code, string? name)
     {
         var ret = await _garmentService.GetGarmentsAsync(pageIndex, pageSize, code, name);
@@ -35,12 +36,13 @@ public class GarmentController : Controller
     }
 
     /// <summary>
-    /// 添加工衣(colors以顿号隔开)
+    /// 添加工衣
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
     [Permission("Post-Garment")]
+    //[Permission("Garment-mid")]
     public async Task<IActionResult> AddGarment(AddGarmentModel model)
     {
         var ret = await _garmentService.AddGarmentAsync(model);
@@ -48,12 +50,13 @@ public class GarmentController : Controller
     }
 
     /// <summary>
-    /// 修改工衣(colors以顿号隔开)
+    /// 修改工衣
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut]
     [Permission("Update-Garment")]
+    //[Permission("Garment-mid")]
     public async Task<IActionResult> UpdateGarment(UpdateGarmentModel model)
     {
         var ret = await _garmentService.UpdateGarmentAsync(model);
@@ -67,6 +70,7 @@ public class GarmentController : Controller
     /// <returns></returns>
     [HttpDelete]
     [Permission("Delete-Garment")]
+    //[Permission("Garment-mid")]
     public async Task<IActionResult> DeleteGarment(string code)
     {
         var ret = await _garmentService.DeleteGarmentAsync(code);

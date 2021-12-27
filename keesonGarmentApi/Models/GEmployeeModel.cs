@@ -77,3 +77,17 @@ public class ImportEmployeeModel
     public int Num6 { get; set; } = 0;
     public DateTime? Date6 { get; set; }
 }
+
+public class ExportModel
+{
+
+}
+
+public class ExportTestData
+{
+    public string Name1 { get; set; }
+    public string Name2 { get; set; }
+    public string Name3 { get; set; }
+    public string Name4 { get; set; }
+
+}

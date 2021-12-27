@@ -24,6 +24,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpGet]
         //[Permission("Get-Issuing")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> GetGarmentIssuing()
         {
             var ret = await _garmentIssuingService.GetGarmentIssuingAsync();
@@ -35,6 +36,7 @@ namespace keesonGarmentApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("files")]
+        //[Permission("Garment-low")]
         public async Task<IActionResult> GetFIlesName()
         {
             var ret = await _garmentIssuingService.GetFIlesNameAsync();
@@ -48,6 +50,7 @@ namespace keesonGarmentApi.Controllers
         /// <returns></returns>
         [HttpPost("file")]
         //[Permission("Post-Issuing")]
+        //[Permission("Garment-hig")]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             var ret = await _garmentIssuingService.UploadFileAsync(file);
@@ -60,6 +63,7 @@ namespace keesonGarmentApi.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
+        //[Permission("Garment-hig")]
         public async Task<IActionResult> AddGarmentIssuing(AddGarmentIssuingModel model)
         {
             var ret = await _garmentIssuingService.AddGarmentIssuingAsync(model);
