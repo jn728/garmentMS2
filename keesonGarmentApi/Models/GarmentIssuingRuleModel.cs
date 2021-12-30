@@ -41,3 +41,14 @@ public class AddGarmentIssuingRuleModel
 
     public DateTime CreateTime => DateTime.Now;
 }
+
+public class IssuingRuleImportModel
+{
+    public string Gid { get; set; }
+    public string Dep { get; set; }
+    public string Pos { get; set; }
+    public int Year1 { get; set; }
+    public int Num1 { get; set; }
+    public int Year2 { get; set; }
+    public int Num2 { get; set; }
+}

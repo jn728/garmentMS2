@@ -77,7 +77,7 @@ namespace keesonGarmentApi.Services
 
             var count = query.Count();
             var list = query.OrderBy(x => x.UserId).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
-
+            //asdasd
             for (int i = 0; i < list.Count; i++)
             {
                 var item = list[i];
@@ -91,7 +91,8 @@ namespace keesonGarmentApi.Services
                                Size = l.Size,
                                AssigedOrRefundTime = l.Type ? l.AssignedTime : l.RefundTime,
                                OperationTime = l.OperationTime,
-                               GarmentName = g.Name,
+                               //GarmentName = g.Name,
+                               GarmentName = string.IsNullOrEmpty(l.Size) && l.Number == 0 ? null : g.Name,
                                GarmentCode = g.Code,
                                Color = l.Color,
                                Fare = state <= 1 ? 0 : GetRefundFare(l, GarmentContext.GarmentsAssignedLogs.Where(x => x.Type == false && x.UserId == l.UserId && x.GarmentId == l.GarmentId && x.State == 2 && x.AssignedTime == l.AssignedTime).Sum(x => x.Number), g.Price),
@@ -118,6 +119,10 @@ namespace keesonGarmentApi.Services
         {
             int count = 12;
             DateTime refund = DateTime.Now;
+            if(log.AssignedTime == null)
+            {
+                return -1;
+            }
             DateTime assigned = (DateTime)log.AssignedTime;
             int num = log.Number;
 
@@ -331,7 +336,6 @@ namespace keesonGarmentApi.Services
                     Type = true,
                     GarmentName = gTemp == null ? "" : gTemp.GarmentName,
                     GarmentCode = gTemp == null ? "" : gTemp.GarmentCode,
-                    Color = "none",
                     Remark = "",
                     OperationTime = DateTime.Now
                 };
@@ -339,11 +343,15 @@ namespace keesonGarmentApi.Services
                 {
                     singleLog.Number = "";
                     singleLog.Size = "";
+                    singleLog.Color = "none";
+                    singleLog.GarmentCode = null;
+                    singleLog.GarmentName = null;
                 }
                 else
                 {
                     singleLog.Number = log.Number == 0 ? null : "" + log.Number;
                     singleLog.Size = log.Size;
+                    singleLog.Color = log.Color;
                 }
                 list[i].Logs.Add(singleLog);
             }
@@ -430,7 +438,6 @@ namespace keesonGarmentApi.Services
             return ret;
         }
 
-        //public async Task<ResultsModel<GarmentCommitLogSummaryListModel>> GetGarmentCommitLogSummaryAsync()
         public async Task<ResultModel<GarmentSummaryConvertModel>> GetGarmentCommitLogSummaryAsync()
         {
             var ret = new ResultModel<GarmentSummaryConvertModel>();
@@ -908,35 +915,68 @@ namespace keesonGarmentApi.Services
 
             if (log == null)
             {
-                ret.Code = HttpStatus.BadRequest;
-                ret.Message = "修改失败";
-                return ret;
-            }
-            var isEx = await GarmentContext.Garments.AnyAsync(x => x.Code == model.GarmentId);
-            if (!isEx)
-            {
-                ret.Code = HttpStatus.BadRequest;
-                ret.Message = "不存在该工衣";
-                return ret;
-            }
-
-            log.GarmentId = model.GarmentId;
-            if (state == 0)
-            {
-                if (model.Number > GetIssuingRuleNumber(model.GarmentId, model.UserId).Result)
+                var isExT = await GarmentContext.GEmployees.AnyAsync(x => x.Code == model.UserId);
+                if (!isExT)
                 {
                     ret.Code = HttpStatus.BadRequest;
-                    ret.Message = "超过可申请数量";
+                    ret.Message = "不存在该员工";
                     return ret;
                 }
+                if (model.Number > GetIssuingRuleNumber(model.GarmentId, model.UserId).Result && GetRoleState() != 2)
+                {
+                    ret.Code = HttpStatus.BadRequest;
+                    ret.Message = "申请数量超出标准";
+                    return ret;
+                }
+                var gs = await GarmentContext.GarmentsSizes.FirstOrDefaultAsync(x => x.UserCode == model.UserId);
+                var logTemp = new GarmentAssignedLog()
+                {
+                    GarmentId = model.GarmentId,
+                    UserId = model.UserId,
+                    Size = model.Size,
+                    Number = model.Number,
+                    State = 0,
+                    AssignedTime = null,
+                    RefundTime = null,
+                    Type = true,
+                    Color = model.Color,
+                    OperationTime = DateTime.Today,
+                    Remark = model.Remark,
+                    CreateTime = DateTime.Now,
+                    CreateUser = UserId,
+                    UpdateTime = null,
+                    UpdateUser = null
+                };
+                await GarmentContext.GarmentsAssignedLogs.AddAsync(logTemp);
             }
-            log.Number = model.Number;
-            log.Size = model.Size;
-            log.Color = model.Color;
-            log.Remark = model.Remark;
-            log.UpdateUser = UserId;
-            log.UpdateTime = DateTime.Now;
+            else
+            {
+                var isEx = await GarmentContext.Garments.AnyAsync(x => x.Code == model.GarmentId);
+                if (!isEx)
+                {
+                    ret.Code = HttpStatus.BadRequest;
+                    ret.Message = "不存在该工衣";
+                    return ret;
+                }
 
+                log.GarmentId = model.GarmentId;
+                if (state == 0)
+                {
+                    if (model.Number > GetIssuingRuleNumber(model.GarmentId, model.UserId).Result)
+                    {
+                        ret.Code = HttpStatus.BadRequest;
+                        ret.Message = "超过可申请数量";
+                        return ret;
+                    }
+                }
+                log.Number = model.Number;
+                log.Size = model.Size;
+                log.Color = model.Color;
+                log.Remark = model.Remark;
+                log.UpdateUser = UserId;
+                log.UpdateTime = DateTime.Now;
+            }
+            //qwe
             await GarmentContext.SaveChangesAsync();
 
             ret.Code = HttpStatus.Success;
@@ -1088,7 +1128,8 @@ namespace keesonGarmentApi.Services
                 Size = log.Size,
                 State = log.State,
                 Color = log.Color,
-                CreateUser = UserId
+                CreateUser = UserId,
+                Remark = model.Remark
             };
 
             await GarmentContext.GarmentsAssignedLogs.AddAsync(newLog);
@@ -1099,14 +1140,67 @@ namespace keesonGarmentApi.Services
             return ret;
         }
 
-        public async Task<ResultViewModel> ExportExcel()
+        public async Task<ResultViewModel> ExportExcelLogAsync()
         {
             var ret = new ResultViewModel();
-            //var result = await IExporter.Export<ExportTestData>("D:\\File\\Garment", new List<ExportTestData>()
 
-            var list = GetGarmentAssignedLogSingleAsync(0, 0, null, null, null, null).Result.Data;
+            string dep = GetRoleSelectDeparment();
+            var list = from log in GarmentContext.GarmentsAssignedLogs
+                       join ge in GarmentContext.GEmployees on log.UserId equals ge.Code
+                       join gs in GarmentContext.GarmentsSizes on log.UserId equals gs.UserCode
+                       join g in GarmentContext.Garments on log.GarmentId equals g.Code
+                       where ge.IsDeleted == false && log.State == 2 && (ge.Department == dep || dep == "ALL")
+                       select new ExportExcelLogModel
+                       {
+                           UserId = log.UserId,
+                           UserName = ge.Name,
+                           Department = ge.Department,
+                           Postion = ge.Postion,
+                           Induction = ge.Induction,
+                           ClothesSize = gs.ClothesSize,
+                           ShoesSize = gs.ShoesSize,
+                           Type = log.Type == true ? "领取" : "退还",
+                           Number = log.Number,
+                           AssigedOrRefundTime = log.Type ? log.AssignedTime : log.RefundTime,
+                           OperationTime = log.OperationTime,
+                           GarmentName = g.Name,
+                           Fare = GetRefundFare(log, GarmentContext.GarmentsAssignedLogs.Where(x => x.Type == false && x.UserId == log.UserId && x.GarmentId == log.GarmentId && x.State == 2 && x.AssignedTime == log.AssignedTime).Sum(x => x.Number), g.Price)
+                       };
 
-            var result = await new ExcelExporter().Export("D:\\File\\Garment\\台账报表.xlsx", list);
+            var result = await new ExcelExporter().Export("D:\\File\\Garment\\台账报表.xlsx", list.ToList());
+
+            ret.Code = HttpStatus.Success;
+            ret.Message = "导出成功";
+            return ret;
+
+        }
+
+        public async Task<ResultViewModel> ExportExcelApplyAsync()
+        {
+            var ret = new ResultViewModel();
+
+            string dep = GetRoleSelectDeparment();
+            var list = from log in GarmentContext.GarmentsAssignedLogs
+                       where log.State == 1
+                       join ge in GarmentContext.GEmployees on log.UserId equals ge.Code
+                       where ge.IsDeleted == false && (ge.Department == dep || dep == "ALL")
+                       join gs in GarmentContext.GarmentsSizes on ge.Code equals gs.UserCode
+                       join g in GarmentContext.Garments on log.GarmentId equals g.Code
+                       select new ExportExcelApplyModel
+                       {
+                           UserName = ge.Name,
+                           UserId = ge.Code,
+                           Department = ge.Department,
+                           Postion = ge.Postion,
+                           Induction = ge.Induction,
+                           ClothesSize = gs.ClothesSize,
+                           ShoesSize = gs.ShoesSize,
+                           GarmentName = g.Name,
+                           Number = log.Number,
+                           Size = log.Size
+                       };
+
+            var result = await new ExcelExporter().Export("D:\\File\\Garment\\申请工服.xlsx", list.ToList());
 
             ret.Code = HttpStatus.Success;
             ret.Message = "导出成功";

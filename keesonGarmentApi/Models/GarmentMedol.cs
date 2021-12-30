@@ -8,6 +8,8 @@
 
         public string Remark { get; set; }
 
+        public decimal Price { get; set; }
+
         //public List<string>? Colors { get; set; }
         public List<Dictionary<string, string>> Colors { get; set; }
     }

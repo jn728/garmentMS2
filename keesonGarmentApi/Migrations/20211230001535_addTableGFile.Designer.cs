@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using keesonGarmentApi.Common;
 
@@ -11,9 +12,10 @@ using keesonGarmentApi.Common;
 namespace keesonGarmentApi.Migrations
 {
     [DbContext(typeof(GarmentContext))]
-    partial class GarmentContextModelSnapshot : ModelSnapshot
+    [Migration("20211230001535_addTableGFile")]
+    partial class addTableGFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

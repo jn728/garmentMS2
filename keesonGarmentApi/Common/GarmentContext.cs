@@ -15,4 +15,5 @@ public class GarmentContext : DbContext
     public DbSet<GarmentSize> GarmentsSizes { get; set; }
     public DbSet<GarmentIssuing> GarmentsIssuings { get; set; }
     public DbSet<GEmployee> GEmployees { get; set; }
+    public DbSet<GFile> GFiles { get; set; }
 }

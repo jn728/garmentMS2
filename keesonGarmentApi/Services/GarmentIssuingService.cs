@@ -42,18 +42,18 @@ namespace keesonGarmentApi.Services
             return ret;
         }
 
-        public async Task<ResultsModel<string>> GetFIlesNameAsync()
+        public async Task<ResultsModel<FileListModel>> GetFIlesNameAsync()
         {
-            var ret = new ResultsModel<string>();
-            ret.Data = new List<string>();
-
-            var files = Directory.GetFiles("D:/File/Garment/").Reverse();
-
-            foreach (var file in files)
-            {
-                ret.Data.Add(file);
-            }
-
+            var ret = new ResultsModel<FileListModel>();
+            var query = from file in GarmentContext.GFiles
+                        orderby file.UpdateTime descending
+                        select new FileListModel
+                        {
+                            Name = file.FileName,
+                            Path = "http://192.168.1.85:9000"+file.RPath,
+                            UpdateTime = file.UpdateTime
+                        };
+            ret.Data = query.ToList();
             ret.Code = HttpStatus.Success;
             ret.Message = "文件名获取成功";
             return ret;
@@ -112,13 +112,34 @@ namespace keesonGarmentApi.Services
                     // 清空缓冲区数据
                     fs.Flush();
                 }
-            }catch (Exception ex)
+
+                var f = await GarmentContext.GFiles.FirstOrDefaultAsync(x => x.FileName == name);
+                if (f == null)
+                {
+                    f = new GFile()
+                    {
+                        FileName = name,
+                        APath = filename,
+                        RPath = @"/Garment/" + name,
+                        UpdateTime = DateTime.Now,
+                        UpdateUser = UserId
+                    };
+                    await GarmentContext.GFiles.AddAsync(f);
+                }
+                else
+                {
+                    f.UpdateTime = DateTime.Now;
+                    f.UpdateUser = UserId;
+                }
+                await GarmentContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
             {
                 ret.Code = HttpStatus.BadRequest;
                 ret.Message = "出现异常: "+ex.Message;
                 return ret;
             }
-            
+
             ret.Code = HttpStatus.Success;
             ret.Message = "添加成功";
 

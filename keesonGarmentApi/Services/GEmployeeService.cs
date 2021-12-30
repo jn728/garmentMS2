@@ -182,6 +182,14 @@ namespace keesonGarmentApi.Services
         public async Task<ResultViewModel> UpdateGEmployeeAsync(UpdateGEmployeeModel model)
         {
             var ret = new ResultViewModel();
+
+            //if(string.IsNullOrEmpty(model.ShoesSize) || string.IsNullOrEmpty(model.ClothesSize))
+            //{
+            //    ret.Code = HttpStatus.BadRequest;
+            //    ret.Message = "尺码不能为空";
+            //    return ret;
+            //}
+
             var gemployee = await GarmentContext.GEmployees.FirstOrDefaultAsync(x => x.Code == model.Code && x.IsDeleted == false);
 
             if (gemployee == null)
@@ -314,22 +322,24 @@ namespace keesonGarmentApi.Services
                     CreateUser = UserId
                 });
 
-                var addLogList1 = list.Where(l=>l.Num1!=null && l.Num1>0).Select(l => new GarmentAssignedLog
+                var addLogList1 = list.Where(l => l.Num1 != null && l.Num1 > 0 && l.Date1 != null).Select(l => new GarmentAssignedLog
                 {
                     UserId = l.Code,
+                    //春秋工作服
                     GarmentId = "29001111",
                     Number = l.Num1,
                     AssignedTime = l.Date1,
                     CreateTime = DateTime.Now,
-                    CreateUser = UserId ,
+                    CreateUser = UserId,
                     State = 2,
                     Type = true,
                     OperationTime = DateTime.Today
                 });
 
-                var addLogList2 = list.Where(l => l.Num2 != null && l.Num2 > 0).Select(l => new GarmentAssignedLog
+                var addLogList2 = list.Where(l => l.Num2 != null && l.Num2 > 0 && l.Date2 != null).Select(l => new GarmentAssignedLog
                 {
                     UserId = l.Code,
+                    //夏季T恤衫
                     GarmentId = "29002666",
                     Number = l.Num2,
                     AssignedTime = l.Date2,
@@ -340,9 +350,10 @@ namespace keesonGarmentApi.Services
                     OperationTime = DateTime.Today
                 });
 
-                var addLogList3 = list.Where(l => l.Num3 != null && l.Num3 > 0).Select(l => new GarmentAssignedLog
+                var addLogList3 = list.Where(l => l.Num3 != null && l.Num3 > 0 && l.Date3 != null).Select(l => new GarmentAssignedLog
                 {
                     UserId = l.Code,
+                    //夏季T恤裤子
                     GarmentId = "29002665",
                     Number = l.Num3,
                     AssignedTime = l.Date3,
@@ -352,9 +363,10 @@ namespace keesonGarmentApi.Services
                     Type = true,
                     OperationTime = DateTime.Today
                 });
-                var addLogList4 = list.Where(l => l.Num4 != null && l.Num4 > 0).Select(l => new GarmentAssignedLog
+                var addLogList4 = list.Where(l => l.Num4 != null && l.Num4 > 0 && l.Date4 != null).Select(l => new GarmentAssignedLog
                 {
                     UserId = l.Code,
+                    //春秋工作服
                     GarmentId = "29001111",
                     Number = l.Num4,
                     AssignedTime = l.Date4,
@@ -364,9 +376,10 @@ namespace keesonGarmentApi.Services
                     Type = true,
                     OperationTime = DateTime.Today
                 });
-                var addLogList5 = list.Where(l => l.Num5 != null && l.Num5 > 0).Select(l => new GarmentAssignedLog
+                var addLogList5 = list.Where(l => l.Num5 != null && l.Num5 > 0 && l.Date5 != null).Select(l => new GarmentAssignedLog
                 {
                     UserId = l.Code,
+                    //冬季工作服
                     GarmentId = "29005847",
                     Number = l.Num5,
                     AssignedTime = l.Date5,
@@ -376,12 +389,26 @@ namespace keesonGarmentApi.Services
                     Type = true,
                     OperationTime = DateTime.Today
                 });
-                var addLogList6 = list.Where(l => l.Num6 != null && l.Num6 > 0).Select(l => new GarmentAssignedLog
+                var addLogList6 = list.Where(l => l.Num6 != null && l.Num6 > 0 && l.Date6 != null).Select(l => new GarmentAssignedLog
                 {
                     UserId = l.Code,
-                    GarmentId = "12345678",
+                    //劳保鞋
+                    GarmentId = "29006498",
                     Number = l.Num6,
                     AssignedTime = l.Date6,
+                    CreateTime = DateTime.Now,
+                    CreateUser = UserId,
+                    State = 2,
+                    Type = true,
+                    OperationTime = DateTime.Today
+                });
+                var addLogList7 = list.Where(l => l.Num7 != null && l.Num7 > 0 && l.Date7 != null).Select(l => new GarmentAssignedLog
+                {
+                    UserId = l.Code,
+                    //羽绒背心
+                    GarmentId = "29002826",
+                    Number = l.Num7,
+                    AssignedTime = l.Date7,
                     CreateTime = DateTime.Now,
                     CreateUser = UserId,
                     State = 2,
@@ -397,6 +424,7 @@ namespace keesonGarmentApi.Services
                 await GarmentContext.GarmentsAssignedLogs.AddRangeAsync(addLogList4);
                 await GarmentContext.GarmentsAssignedLogs.AddRangeAsync(addLogList5);
                 await GarmentContext.GarmentsAssignedLogs.AddRangeAsync(addLogList6);
+                await GarmentContext.GarmentsAssignedLogs.AddRangeAsync(addLogList7);
                 await GarmentContext.SaveChangesAsync();
                 ret.Code = HttpStatus.Success;
                 ret.Message = "导入数据成功.";

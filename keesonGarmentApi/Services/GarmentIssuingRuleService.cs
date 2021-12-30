@@ -2,6 +2,7 @@
 using keesonGarmentApi.Common;
 using keesonGarmentApi.Entities;
 using keesonGarmentApi.Models;
+using Magicodes.ExporterAndImporter.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
@@ -52,6 +53,41 @@ namespace keesonGarmentApi.Services
             ret.Code = HttpStatus.Success;
             ret.Message = "工衣发放标准添加成功";
 
+            return ret;
+        }
+
+        public async Task<ResultViewModel> ImportRules(IFormFile file)
+        {
+            var ret = new ResultViewModel();
+            var importer = new ExcelImporter();
+            try
+            {
+                var importRet = await importer.Import<IssuingRuleImportModel>(file.OpenReadStream());
+                var list = importRet.Data;
+                var addList = list.Select(l => new GarmentIssuingRule
+                {
+                    GarmentId = l.Gid,
+                    DepartmentId = l.Dep,
+                    PositionId = l.Pos,
+                    NewEmpAssignedYear = l.Year1,
+                    NewEmpAssignedNumber = l.Num1,
+                    EmpAssignedYear = l.Year2,
+                    EmpAssignedNumber = l.Num2,
+                    CreateTime = DateTime.Now,
+                    CreateUser = UserId
+                }).ToList();
+
+               
+                await GarmentContext.GarmentsIssuingRules.AddRangeAsync(addList);
+                await GarmentContext.SaveChangesAsync();
+                ret.Code = HttpStatus.Success;
+                ret.Message = "导入数据成功.";
+            }
+            catch (Exception e)
+            {
+                ret.Code = HttpStatus.ServerError;
+                ret.Message = $"导入数据失败,原因:{e.Message}";
+            }
             return ret;
         }
     }

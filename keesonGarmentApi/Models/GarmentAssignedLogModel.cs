@@ -1,4 +1,6 @@
-﻿namespace keesonGarmentApi.Models;
+﻿using Magicodes.ExporterAndImporter.Core;
+
+namespace keesonGarmentApi.Models;
 
 public class GarmentAllEmployeeLogListModel
 {
@@ -202,9 +204,9 @@ public class UpdateGarmentAssignedLogModel
 
     public string GarmentId { get; set; }
 
-    public int Number { get; set; }
+    public int Number { get; set; } = 0;
 
-    public string Size { get; set; }
+    public string? Size { get; set; }
 
     public string? Color { get; set; } = "none";
 
@@ -255,4 +257,6 @@ public class RefundGarmentAssignedLogModel
     public DateTime Date { get; set; }
 
     public int Number { get; set; }
+
+    public string? Remark { get; set; }
 }

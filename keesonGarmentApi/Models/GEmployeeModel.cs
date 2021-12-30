@@ -43,9 +43,9 @@ public class UpdateGEmployeeModel
 
     public string Postion { get; set; }
 
-    public string ClothesSize { get; set; }
+    public string? ClothesSize { get; set; }
 
-    public string ShoesSize { get; set; }
+    public string? ShoesSize { get; set; }
 }
 
 public class ImportEmployeeModel
@@ -76,18 +76,6 @@ public class ImportEmployeeModel
     public DateTime? Date5 { get; set; }
     public int Num6 { get; set; } = 0;
     public DateTime? Date6 { get; set; }
-}
-
-public class ExportModel
-{
-
-}
-
-public class ExportTestData
-{
-    public string Name1 { get; set; }
-    public string Name2 { get; set; }
-    public string Name3 { get; set; }
-    public string Name4 { get; set; }
-
+    public int Num7 { get; set; } = 0;
+    public DateTime? Date7 { get; set; }
 }

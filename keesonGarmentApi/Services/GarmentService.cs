@@ -21,7 +21,6 @@ public class GarmentService : BaseService
         var ret = new PageViewModel<GarmentListModel>();
         var query = GarmentContext.Garments.AsQueryable();
         
-
         if (!string.IsNullOrEmpty(code))
         {
             query = query.Where(x => x.Code == code);

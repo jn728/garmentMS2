@@ -3,6 +3,8 @@ using keesonGarmentApi.Models;
 using keesonGarmentApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace keesonGarmentApi.Controllers
 {
@@ -205,14 +207,57 @@ namespace keesonGarmentApi.Controllers
         }
 
         /// <summary>
-        /// 台账报表
+        /// 导出台账报表
         /// </summary>
         /// <returns></returns>
-        [HttpPost("export3")]
-        public async Task<IActionResult> Export3()
+        [HttpPost("exportLog")]
+        public async Task<IActionResult> ExportLog()
         {
-            var ret = await _garmentAssignedLogService.ExportExcel();
+            var ret = await _garmentAssignedLogService.ExportExcelLogAsync();
             return Ok(ret);
         }
+
+        /// <summary>
+        /// 导出申请列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("exportApply")]
+        public async Task<IActionResult> ExportApply()
+        {
+            var ret = await _garmentAssignedLogService.ExportExcelApplyAsync();
+            return Ok(ret);
+        }
+
+        /// <summary>
+        /// 下载文件
+        /// </summary>
+        /// <param name="path">文件绝对路径</param>
+        /// <returns></returns>
+        //[HttpGet("downloadFile")]
+        //public ActionResult<dynamic> DownloadFiles()
+        //{
+        //    return File(new FileInfo("D:\\File\\Garment\\申请工服.xlsx").OpenRead(), "application/vnd.android.package-archive", "申请工服");
+        //}
+
+        
+        //public HttpResponseMessage DownloadFile()
+        //{
+        //    try
+        //    {
+        //        var stream = new FileStream("D:\\File\\Garment\\申请工服.xlsx", FileMode.Open);
+        //        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+        //        response.Content = new StreamContent(stream);
+        //        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        //        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+        //        {
+        //            FileName = "Wep Api Demo File.zip"
+        //        };
+        //        return response;
+        //    }
+        //    catch
+        //    {
+        //        return new HttpResponseMessage(HttpStatusCode.NoContent);
+        //    }
+        //}
     }
 }

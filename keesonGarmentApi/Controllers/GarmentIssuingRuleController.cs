@@ -44,5 +44,17 @@ namespace keesonGarmentApi.Controllers
             var ret = await _garmentIssuingRuleService.AddGarmentIssuingRuleAsync(model);
             return Ok(ret);
         }
+
+        /// <summary>
+        /// 导入发放标准
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [HttpPost("importRules")]
+        public async Task<IActionResult> ImportGarmentIssuingRule(IFormFile file)
+        {
+            var ret = await _garmentIssuingRuleService.ImportRules(file);
+            return Ok(ret);
+        }
     }
 }
