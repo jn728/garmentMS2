@@ -1140,9 +1140,9 @@ namespace keesonGarmentApi.Services
             return ret;
         }
 
-        public async Task<ResultViewModel> ExportExcelLogAsync()
+        public async Task<ResultModel<byte[]>> ExportExcelLogAsync()
         {
-            var ret = new ResultViewModel();
+            var ret = new ResultModel<byte[]>();
 
             string dep = GetRoleSelectDeparment();
             var list = from log in GarmentContext.GarmentsAssignedLogs
@@ -1166,18 +1166,26 @@ namespace keesonGarmentApi.Services
                            GarmentName = g.Name,
                            Fare = GetRefundFare(log, GarmentContext.GarmentsAssignedLogs.Where(x => x.Type == false && x.UserId == log.UserId && x.GarmentId == log.GarmentId && x.State == 2 && x.AssignedTime == log.AssignedTime).Sum(x => x.Number), g.Price)
                        };
-
-            var result = await new ExcelExporter().Export("D:\\File\\Garment\\台账报表.xlsx", list.ToList());
-
-            ret.Code = HttpStatus.Success;
-            ret.Message = "导出成功";
+            try
+            {
+                var result = await new ExcelExporter().ExportAsByteArray(list.ToList());
+                ret.Data = result;
+                ret.Code = HttpStatus.Success;
+                ret.Message = "导出成功";
+            }
+            catch (Exception ex)
+            {
+                ret.Code = HttpStatus.BadRequest;
+                ret.Message = "导出失败: "+ex.Message;
+            }
+            
             return ret;
 
         }
 
-        public async Task<ResultViewModel> ExportExcelApplyAsync()
+        public async Task<ResultModel<byte[]>> ExportExcelApplyAsync()
         {
-            var ret = new ResultViewModel();
+            var ret = new ResultModel<byte[]>();
 
             string dep = GetRoleSelectDeparment();
             var list = from log in GarmentContext.GarmentsAssignedLogs
@@ -1200,12 +1208,20 @@ namespace keesonGarmentApi.Services
                            Size = log.Size
                        };
 
-            var result = await new ExcelExporter().Export("D:\\File\\Garment\\申请工服.xlsx", list.ToList());
+            try
+            {
+                var result = await new ExcelExporter().ExportAsByteArray(list.ToList());
+                ret.Data = result;
+                ret.Code = HttpStatus.Success;
+                ret.Message = "导出成功";
+            }
+            catch (Exception ex)
+            {
+                ret.Code = HttpStatus.BadRequest;
+                ret.Message = "导出失败"+ex.Message;
+            }
 
-            ret.Code = HttpStatus.Success;
-            ret.Message = "导出成功";
             return ret;
-
         }
     }
 }

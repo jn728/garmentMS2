@@ -1,4 +1,5 @@
-﻿using keesonGarmentApi.Filters;
+﻿using keesonGarmentApi.Common;
+using keesonGarmentApi.Filters;
 using keesonGarmentApi.Models;
 using keesonGarmentApi.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -214,6 +215,10 @@ namespace keesonGarmentApi.Controllers
         public async Task<IActionResult> ExportLog()
         {
             var ret = await _garmentAssignedLogService.ExportExcelLogAsync();
+            if (HttpStatus.Success.Equals(ret.Code))
+            {
+                return File(ret.Data, "application/vnd.ms-excel", "台账报表.xlsx");
+            }
             return Ok(ret);
         }
 
@@ -225,39 +230,11 @@ namespace keesonGarmentApi.Controllers
         public async Task<IActionResult> ExportApply()
         {
             var ret = await _garmentAssignedLogService.ExportExcelApplyAsync();
+            if (HttpStatus.Success.Equals(ret.Code))
+            {
+                return File(ret.Data, "application/vnd.ms-excel", "申请工服.xlsx");
+            }
             return Ok(ret);
         }
-
-        /// <summary>
-        /// 下载文件
-        /// </summary>
-        /// <param name="path">文件绝对路径</param>
-        /// <returns></returns>
-        //[HttpGet("downloadFile")]
-        //public ActionResult<dynamic> DownloadFiles()
-        //{
-        //    return File(new FileInfo("D:\\File\\Garment\\申请工服.xlsx").OpenRead(), "application/vnd.android.package-archive", "申请工服");
-        //}
-
-        
-        //public HttpResponseMessage DownloadFile()
-        //{
-        //    try
-        //    {
-        //        var stream = new FileStream("D:\\File\\Garment\\申请工服.xlsx", FileMode.Open);
-        //        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-        //        response.Content = new StreamContent(stream);
-        //        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-        //        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-        //        {
-        //            FileName = "Wep Api Demo File.zip"
-        //        };
-        //        return response;
-        //    }
-        //    catch
-        //    {
-        //        return new HttpResponseMessage(HttpStatusCode.NoContent);
-        //    }
-        //}
     }
 }

@@ -32,17 +32,7 @@ namespace keesonGarmentApi.Services
         }
 
         protected string UserId { get; }
-
-        protected List<string> GetRoleNames()
-        {
-            var list = new List<string>
-            {
-                "行政文员"
-                //"部门文员"
-            };
-            return list;
-        }
-            
+        
         protected string CoventPosition(string pos)
         {
             var managements = new List<string>()
@@ -94,6 +84,15 @@ namespace keesonGarmentApi.Services
             return "null";
         }
 
+        protected List<string> GetRoleNames()
+        {
+            var list = new List<string>
+            {
+                "行政文员"
+                //"部门文员"
+            };
+            return list;
+        }
         //protected List<string> GetRoleNames() =>
         //    FreeSql.Ado.Query<string>(@"Select Postion from AspNetRoles
         //                             where Id in ( select RoleId from AspNetUserRoles where UserId = @uid )", new { uid = UserId });
